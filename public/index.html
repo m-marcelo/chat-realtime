@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat em tempo real</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #74ebd5, #ACB6E5);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #chat {
+            width: 100%;
+            max-width: 600px;
+            background: #ffffffdd;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            margin: 1rem;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #mensagens {
+            list-style: none;
+            padding: 0;
+            height: 250px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        #mensagens li {
+            padding: 8px 12px;
+            margin: 6px;
+            background-color: #e3f2fd;
+            border-radius: 8px;
+        }
+
+        #usuariosOnline {
+            list-style: none;
+            padding-left: 16px;
+        }
+
+        @media (max-width: 480px) {
+            #chat {
+                padding: 16px;
+            }
+
+            form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chat">
+        <h2> Chat em Tempo Real</h2>
+        <form id="formNomeSala">
+            <input id="nome" placeholder="Seu nome" required />
+            <input id="sala" placeholder="Sala" required />
+            <button type="submit">Entrar</button>
+        </form>
+
+        <ul id="mensagens"></ul>
+
+        <form id="formMensagem" style="display:none;">
+            <input id="inputMensagem" autocomplete="off" placeholder="Digite sua mensagem..." />
+            <button>Enviar</button>
+        </form>
+
+        <h3>👥 Usuários online:</h3>
+        <ul id="usuariosOnline"></ul>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        const formNomeSala = document.getElementById('formNomeSala');
+        const formMensagem = document.getElementById('formMensagem');
+        const mensagens = document.getElementById('mensagens');
+        const usuariosOnline = document.getElementById('usuariosOnline');
+
+        let nome = '';
+        let sala = '';
+
+        formNomeSala.addEventListener('submit', function (e) {
+            e.preventDefault();
+            nome = document.getElementById('nome').value;
+            sala = document.getElementById('sala').value;
+
+            socket.emit('entrarNaSala', { nome, sala });
+            formNomeSala.style.display = 'none';
+            formMensagem.style.display = 'flex';
+        });
+
+        formMensagem.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const input = document.getElementById('inputMensagem');
+            if (input.value) {
+                socket.emit('mensagem', { nome, texto: input.value });
+                input.value = '';
+            }
+        });
+
+        socket.on('mensagem', function (msg) {
+            const item = document.createElement('li');
+            item.textContent = `${msg.nome}: ${msg.texto}`;
+            mensagens.appendChild(item);
+            mensagens.scrollTop = mensagens.scrollHeight;
+        });
+
+        socket.on('usuariosAtivos', function (lista) {
+            usuariosOnline.innerHTML = '';
+            lista.forEach((n) => {
+                const item = document.createElement('li');
+                item.textContent = n;
+                usuariosOnline.appendChild(item);
+            });
+        });
+    </script>
+</body>
+
+</html>
