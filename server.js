@@ -12,12 +12,14 @@ const usuarios = {}; // { sala1: ['João', 'Maria'], sala2: [...] }
 app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', (socket) => {
-    console.log('Novo usuário conectado');
+    console.log('Novo usuário conectado', socket.nome);
 
     socket.on('entrarNaSala', ({ nome, sala }) => {
         socket.join(sala);
         socket.nome = nome;
         socket.sala = sala;
+
+        console.log(' O usuário', socket.nome, 'conectou-se a sala', socket.sala);
 
         if (!usuarios[sala]) usuarios[sala] = [];
         if (!usuarios[sala].includes(nome)) usuarios[sala].push(nome);
@@ -60,5 +62,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`Servidor rodando na porta ${PORT}`);
 });
