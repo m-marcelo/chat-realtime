@@ -51,10 +51,6 @@ http://localhost:3000
 
 Este projeto pode ser publicado facilmente no [Render](https://render.com) ou [Railway](https://railway.app), com plano gratuito para projetos Node.js.
 
-## 📄 Licença
-
-Distribuído sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
 ---
 
 Feito com ❤️ por [https://github.com/m-marcelo]
